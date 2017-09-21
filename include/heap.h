@@ -92,6 +92,7 @@ void  _heapFree(unsigned blockNumber, const char* file, int line);
 void  _heapEndBlock(unsigned blockNumber, size_t size, const char* file, int line);
 void  _heapTestAvailable(unsigned blockNumber, size_t size, const char* file, int line);
 size_t heapAvailable(void);
+void heapTooSmall(const char* file, int line, size_t needed, size_t available);
 
 /** Returns total size of heap. (I.e., the size that was allocated.) */
 size_t  heapSize(void);

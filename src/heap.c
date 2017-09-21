@@ -223,6 +223,11 @@ void tooManyBlocksError(const char* file, int line)
 	abortAll(-1);
 }
 
+void heapTooSmall(const char* file, int line, size_t needed, size_t available)
+{
+   printf("Heap too small at %s:%d\n" "  Needed: %zu   Available: %zu\n", file, line, needed, available);
+   abortAll(-1);
+}
 void heapTooSmallError(size_t request, const char* file, int line)
 {
 	printf("Scratch Heap ERROR:\n"
