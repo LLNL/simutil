@@ -64,6 +64,14 @@ Authors
 Many thanks go to SimUtil's
 [contributors](https://github.com/llnl/simutil/graphs/contributors).
 
+* James P Glosli
+* Tomas Oppelstrup
+* Shiv Sundram
+* Xiaohua Zhang
+* Dave F Richards
+* Robert Blake
+* Michael P Surh
+* Fred Streitz
 
 License
 ----------------
