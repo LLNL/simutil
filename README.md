@@ -68,7 +68,7 @@ Many thanks go to SimUtil's
 * Tomas Oppelstrup
 * Shiv Sundram
 * Xiaohua Zhang
-* Dave F Richards
+* David F Richards
 * Robert Blake
 * Michael P Surh
 * Fred Streitz
