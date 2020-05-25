@@ -10,6 +10,7 @@
 #include "object.h"
 #include "pioHelper.h"
 
+
 /**
  *  LIMITATIONS:
  *
@@ -45,6 +46,7 @@
 extern "C" {
 #endif
 
+
 /* if you change PIO_ENUMS please update the definition of PioNames in
  * pio.c to keep it in sync. */
 enum PIO_ENUMS { PIO_NONE, SPLIT, FIXRECORDASCII, FIXRECORDBINARY,
@@ -52,9 +54,11 @@ enum PIO_ENUMS { PIO_NONE, SPLIT, FIXRECORDASCII, FIXRECORDBINARY,
 extern char* PioNames[];
 
 typedef unsigned long long pio_long64;
+typedef struct  rec_type { long long unsigned gid; unsigned pid; float x,y,z; } REC_TYPE; 
 	
 typedef struct pfile_st
 {
+   int type; 
 	int id;
 	int size;
 	int ngroup;
@@ -77,7 +81,15 @@ typedef struct pfile_st
 	FILE* file;
 	FILE** readFile; /* when reading we may have more than 1 file per task. */
 	pio_long64* nBytesInFile; /* number of bytes in each read file */
-	char *buf, *name, *mode, *field_names,*field_types,*field_units,*misc_info;
+   pio_long64* startOfFile; /* if archive then offset to start of file.  */
+   pio_long64 start,next; 
+	char *buf; 
+   char *name;
+   char *masterName; 
+   char *memberName; 
+   char *mode; 
+   char *field_names,*field_types,*field_units,*field_format;
+   char *misc_info;
 	unsigned pio_buf_blk;
    size_t bufsize, bufcapacity, bufpos;
 	OBJECT* headerObject;

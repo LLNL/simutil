@@ -2,7 +2,14 @@
 #ifndef THREE_ALGEBRA_H
 #define THREE_ALGEBRA_H
 
+#ifndef __CUDACC__
 #include <complex.h>
+#else
+#define _Complex
+#endif
+
+
+#include "miscMacros.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,18 +22,19 @@ extern "C" {
 #define MATSCALE(A,D) do {(A).xx *= (D) ;(A).xy *= (D) ;(A).xz *= (D) ;(A).yx *= (D) ;(A).yy *= (D) ;(A).yz *= (D) ;(A).zx *= (D) ;(A).zy *= (D) ;(A).zz *= (D);} while(0)
 #define SMATSCALE(A,D) do {(A).xx *= (D) ;(A).xy *= (D) ;(A).xz *= (D) ;(A).yy *= (D) ;(A).yz *= (D) ;(A).zz *= (D);} while(0)
 #define SMATACUM(A,D)   do {(A).xx += (D).xx ;(A).xy += (D).xy ;(A).xz += (D).xz ; ;(A).yy += (D).yy ;(A).yz += (D).yz ; (A).zz += (D).zz;} while(0)
+#define SMATNACUM(A,D)   do {(A).xx -= (D).xx ;(A).xy -= (D).xy ;(A).xz -= (D).xz ; ;(A).yy -= (D).yy ;(A).yz -= (D).yz ; (A).zz -= (D).zz;} while(0)
 #define MATACUM(A,D)   do {(A).xx += (D).xx ;(A).xy += (D).xy ;(A).xz += (D).xz ; (A).yx += (D).yx ;(A).yy += (D).yy ;(A).yz += (D).yz ; (A).zx += (D).zx ;(A).zy += (D).zy ;(A).zz += (D).zz;} while(0)
 #define ZER03D(A) ((A).x=(A).y=(A).z=0)
 #define VECACUM(A,D)   do {(A).x += (D).x ;(A).y += (D).y ;(A).z += (D).z ;} while(0)
-#define SQ(A)   ((A)*(A))
-#define CUBE(A)   ((A)*(A)*(A))
+//#define SQ(A)   ((A)*(A))
+//#define CUBE(A)   ((A)*(A)*(A))
 #define DOT(A,B)   (((A).x)*((B).x)+((A).y)*((B).y)+((A).z)*((B).z))
 #define DIFFSQ(A,B)   (SQ((A).x-(B).x)+SQ((A).y-(B).y)+SQ((A).z-(B).z))
 #define VSQ(A)   ((SQ((A).x)+SQ((A).y)+SQ((A).z)))
 #define QOP1(C,eq,A)  do {(C).v eq ((A).v) ;(C).x eq ((A).x) ; (C).y eq ((A).y) ; (C).z eq ((A).z);} while(0)
 #define VOP1(C,eq,A)  do {(C.x) eq ((A).x) ;(C).y eq ((A).y) ; (C).z eq ((A).z);} while(0)
 #define VOP2(C,eq,A,op,B)   do {(C.x) eq  (((A).x) op ((B).x)); C.y eq (((A).y) op ((B).y)); C.z eq (((A).z) op ((B).z));} while(0)
-#define VSVOP(C,eq,A,op,B)  do {(C.x) eq  ( (A) op ((B).x)); C.y eq ((A) op ((B).y)); C.z eq ((A) op ((B).z));} while(0)
+#define VSVOP(C,eq,A,op,B)  do {(C.x) eq  ( (A)    op ((B).x)); C.y eq ( (A)    op ((B).y)); C.z eq ( (A)    op ((B).z));} while(0)
 #define VSCALE(A,a)  do {((A).x) *= (a) ;  ((A).y) *= (a) ; ((A).z) *= (a);} while(0)
 #define CROSS(c,a,b) do {(c).x = (a).y*(b).z-(a).z*(b).y; (c).y=(a).z*(b).x-(a).x*(b).z; (c).z=(a).x*(b).y-(a).y*(b).x;} while(0)
 #define VSET(A,X,Y,Z)  do{(A).x=(X);(A).y=(Y);(A).z=(Z);} while(0)
@@ -36,6 +44,7 @@ extern "C" {
 #define SMFPRINT(handle,fmt,A)  (fprintf(handle,fmt,(A).xx,(A).xy,(A).xz,(A).xy,(A).yy,(A).yz,(A).xz,(A).yz,(A).zz))
 enum EIGENVALUES { REAL_EIGENVALUES, COMPLEX_EIGENVALUES}; 
 
+typedef struct { double x, y; } TWO_VECTOR;
 typedef struct { double x, y, z; } THREE_VECTOR;
 typedef struct { double _Complex x, y, z; } CTHREE_VECTOR;
 typedef struct { double v,x, y, z; } FOUR_VECTOR;

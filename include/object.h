@@ -34,7 +34,7 @@ typedef struct object_st	/* object structure for parsing routine */
 	char *name;
 	char *objclass;
 	char *value;
-	char **valueptr;
+//	char **valueptr;
 	struct object_st *parent;
 } OBJECT;
 
@@ -59,6 +59,7 @@ int object_lineparse(char *, OBJECT *);
 void object_compilefile(const char* filename);
 void object_compile(void);
 int object_testforkeyword(OBJECT*object, const char *name);
+int object_keywordSize(OBJECT*object, const char *name);
 int object_get_with_units(OBJECT*object, char *name, void *ptr, int type,
 			  int length, char *dvalue, char *unit_convert_from,
 			  char *unit_convert_to);

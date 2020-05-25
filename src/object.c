@@ -460,7 +460,7 @@ void object_compilevalue(OBJECT*object)
 			strcat(object->value, ";");
 		}
 	}
-	if (object->valueptr) *object->valueptr = object->value;
+	//if (object->valueptr) *object->valueptr = object->value; //Hack to "fix" a nextfile bug 
 }
 
 /** Note that for STRING objects, this function calls strdup to make
@@ -729,7 +729,7 @@ void object_compilestring(char *string)
 			object[i]->name = strdup(obj.name);
 			object[i]->objclass = strdup(obj.objclass);
 			object[i]->value = strdup(obj.value);
-			object[i]->valueptr = NULL;;
+//			object[i]->valueptr = NULL;;
 		}
 		else
 		{
@@ -891,8 +891,8 @@ OBJECT *object_initialize(char *name, char *objclass, int size)
 	object_long->name = object_short->name;
 	object_long->objclass = object_short->objclass;
 	object_long->value = object_short->value;
-	object_long->valueptr = &object_short->value;
-	object_short->valueptr = &object_long->value;
+//	object_long->valueptr = &object_short->value;
+//	object_short->valueptr = &object_long->value;
 	if (miobject <= niobject)
 	{
 		miobject += 100;
@@ -1095,7 +1095,7 @@ char *object_read(OBJECTFILE ofile)
 		line[n++] = (char)c;
 		if (c == '}')
 		{
-			line[n++] = 0x0;
+         line[n++]=0x0;
 			trim(line);
 			return line;
 		}
@@ -1112,6 +1112,7 @@ void object_free(OBJECT*object)
       Free(object->objclass);
       Free(object->value);
       Free(object);
+//      object->valueptr = NULL; 
    }
 }
 void object_check(char *objectLine)
@@ -1244,7 +1245,7 @@ static void object_unpack(PACKBUF *buf)
 		l = strlen(ptr)+1 ; object[i]->name = strdup(ptr);ptr += l;
 		l = strlen(ptr)+1 ; object[i]->objclass = strdup(ptr);ptr += l;
 		l = strlen(ptr)+1 ; object[i]->value = strdup(ptr);ptr += l;
-		object[i]->valueptr = NULL;;
+//		object[i]->valueptr = NULL;;
 	}
 }
 
@@ -1294,7 +1295,7 @@ OBJECT* object_copy(OBJECT* a)
    b->name = strdup(a->name);
    b->objclass = strdup(a->objclass);
    b->value = strdup(a->value);
-   b->valueptr = &b->value;
+//   b->valueptr = &b->value;
    b->parent = a->parent;
    return b;
 }
@@ -1319,9 +1320,37 @@ int object_testforkeyword(OBJECT*object, const char *name)
 	Free(buffer); 
 	return 0; 
 }
-
-
-
+int object_keywordSize(OBJECT*object, const char *name)
+{
+	char *buffer;
+	char *keyword;
+	char *ptr;
+	buffer = strdup(object->value); 
+	ptr = strtok(buffer, ";");
+	while (ptr != NULL)	/*  loop through   "keyword=value ; "  */
+	{
+		keyword = ptr; 
+		ptr = strchr(ptr, '=');
+		*ptr = 0x0;
+		trim(keyword);
+      if (strcmp(name, keyword) == 0) 
+      {
+         ptr++;
+		   ptr = strtok(ptr, " ");
+         int size =0; 
+         while( ptr != NULL)
+         {
+          size++ ;
+		   ptr = strtok(NULL, " ");
+         }
+         Free(buffer);
+         return size; 
+      }
+		ptr = strtok(NULL, ";");
+	}
+	Free(buffer); 
+	return 0; 
+}
 
 /* Local Variables: */
 /* tab-width: 3 */

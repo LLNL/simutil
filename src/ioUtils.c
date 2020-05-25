@@ -232,6 +232,7 @@ enum IO_FIELDS* makeFieldMap(char** fieldNames, unsigned nFields)
       if      (strcasecmp(fieldNames[ii], "checksum") == 0) map[ii] = IOF_CHECKSUM;
       else if (strcasecmp(fieldNames[ii], "id")       == 0) map[ii] = IOF_ID;
       else if (strcasecmp(fieldNames[ii], "pinfo")    == 0) map[ii] = IOF_PINFO;
+      else if (strcasecmp(fieldNames[ii], "species")  == 0) map[ii] = IOF_SPECIES;
       else if (strcasecmp(fieldNames[ii], "rx")       == 0) map[ii] = IOF_RX;
       else if (strcasecmp(fieldNames[ii], "ry")       == 0) map[ii] = IOF_RY;
       else if (strcasecmp(fieldNames[ii], "rz")       == 0) map[ii] = IOF_RZ;
