@@ -189,10 +189,14 @@ static SYMBOL symbol_table[] =
    {"END",       0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 }; 
 
-/* 
-expression : factor * expression
-           | factor / expression
-           | factor
+/*
+expression : factor expression_opt
+           | / factor
+           | factor 
+
+expression_opt : * factor expression_opt
+               | / factor expression_opt
+               |  
 
 factor : paren ^ number
        | paren
@@ -236,7 +240,8 @@ static int parse_simple(char *s[], double expSum[], double* expVal) {
    
    for (int ii=0; ii<sizeof(symbol_table)/sizeof(symbol_table[0]); ++ii) {
       char* token = symbol_table[ii].name;
-      if (strncmp(original, token, length) == 0) {
+      int token_len = strlen(token);
+      if (length == token_len && strncmp(original, token, length) == 0) {
          double *exp = &(symbol_table[ii].length);
          for (int i=0;i<7;i++) expSum[i] = exp[i];
          *expVal = symbol_table[ii].mks_value;
@@ -331,32 +336,44 @@ static int parse_factor(char *s[], double expSum[], double* expVal) {
 static int parse_expression(char *s[], double expSum[], double* expVal) {
    char *original=*s;
 
-   if (parse_factor(s,expSum,expVal)) {
-      double secondExpSum[7];
-      double secondExpVal;
-      char* secondOrig = *s;
-      if (match(s, "/") && parse_expression(s,secondExpSum,&secondExpVal)) {
-         //do the division
-         for (int i=0;i<7;i++) expSum[i] -= secondExpSum[i];
-         *expVal /= secondExpVal;
-         return 1;
-      }
-      *s = secondOrig;
-      
-      if (match(s, "*") && parse_expression(s,secondExpSum,&secondExpVal)) {
-         //do the multiplication
-         for (int i=0;i<7;i++) expSum[i] += secondExpSum[i];
-         *expVal *= secondExpVal;
-         return 1;
-      }
-      *s = secondOrig;
+   for (int i=0;i<7;i++) expSum[i] = 0;
+   *expVal = 1;
 
+   int num_factors = 0;
+   int first_time = 1;
+   int found_factor;
+   do {
+      found_factor = 0;
+      double newExpSum[7];
+      double newExpVal;
+      char* secondOrig = *s;
+      if ((first_time && parse_factor(s,newExpSum,&newExpVal))
+          ||
+          (!first_time && match(s, "*") && parse_factor(s, newExpSum, &newExpVal))) {
+         for (int i=0;i<7;i++) expSum[i] += newExpSum[i];
+         *expVal *= newExpVal;
+         found_factor=1;
+         num_factors++;
+      } else {
+         *s = secondOrig;
+         if (match(s, "/") && parse_factor(s, newExpSum, &newExpVal)) {
+            for (int i=0;i<7;i++) expSum[i] -= newExpSum[i];
+            *expVal /= newExpVal;
+            found_factor=1;
+            num_factors++;
+         } else {
+            *s = secondOrig;
+         }
+      }
+      first_time = 0;
+   } while (found_factor);
+
+   if (num_factors == 0) {
+      *s = original;
+      return 0;
+   } else {
       return 1;
    }
-   
-   *s = original;
-   return 0;
-
 }
 
 
@@ -372,6 +389,62 @@ double units_parse(const char* unit_string, double* expSum)
    free(orig_string);
    return retVal;
 }
+double units_parseTest(const char* unit_string, double* expSum)
+{
+  double expSumNew[8];
+// double mks_valueNew = units_parse(unit_string, expSumNew);
+   //l m t I T A L
+   char *ptr, *next, op;
+   double  Sexp, *exp,mks_value;
+   SYMBOL *symbol;
+   int i,j;
+   double post_op = 1.0;
+   for (i=0;i<7;i++) expSum[i]=0.0;
+   int l = strlen(unit_string)+2;
+   char string[l];
+   j=0;
+   for (i=0;i<l-2;i++) if ( unit_string[i] != ' ' ) string[j++] = unit_string[i];
+   string[j] = '*';
+   string[j+1] = (char)0;
+   op = '*';
+   mks_value=1.0;
+   char *tok = string;
+   while (*tok != (char)0)
+   {
+      if (op  == '*' ) post_op= 1.0;
+      if (op  == '/' ) post_op=-1.0;
+      next   = strpbrk(tok, "/*");
+      op = *next;
+      *next = (char)0;
+      ptr  = strpbrk(tok, "^");
+      if (ptr == NULL) Sexp = 1.0;
+      else {Sexp= strtod(ptr+1,NULL); *ptr = (char)0; }
+      Sexp *= post_op;
+      symbol = symbol_table;
+      char *start = tok;
+      double value = strtod(start,&tok);
+      if (start != tok) mks_value *= value;
+      if (*tok != (char)0)
+      {
+         while(strcmp(symbol->name,"END")!=0)
+         {
+            if (strcmp(symbol->name,tok)==0)
+            {
+                  exp = &(symbol->length);
+                  mks_value *= pow(symbol->mks_value,Sexp);
+                  for (i=0;i<7;i++) expSum[i] += Sexp * exp[i];
+                  break;
+            }
+            symbol++;
+         }
+      }
+      tok = next + 1;
+   }
+//      printf("units %-16s %.3e ",unit_string,mks_valueNew); for(int i=0;i<7;i++) printf(" %5.2f", expSumNew[i]);
+//      printf(" %.3e ",mks_value); for(int i=0;i<7;i++) printf(" %5.2f", expSum[i]); printf("\n");
+   return mks_value;
+}
+
 
 void units_internal(double length, double mass, double time, double current, double  temperature, double amount, double luminous_intensity)
 {
