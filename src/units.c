@@ -191,7 +191,7 @@ static SYMBOL symbol_table[] =
 
 /*
 expression : factor expression_opt
-           | / factor
+           | / factor expression_opt
            | factor 
 
 expression_opt : * factor expression_opt
