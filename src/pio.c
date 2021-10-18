@@ -24,10 +24,6 @@
 #define MIN(A,B) ((A) < (B) ? (A) : (B))
 #define MAX(A,B) ((A) > (B) ? (A) : (B))
 
-// This defintion needs to be kept in sync with PIO_ENUMS
-char* PioNames [] = {"NONE" , "SPLIT", "FIXRECORDASCII", "FIXRECORDBINARY",
-							"VARRECORDASCII", "VARRECORDBINARY", "CRC32"};
-
 /** Amount of extra space in read buffer for bytes that couldn't be used
  *  by the previous task. */
 static const unsigned _bufferExcess = 10*1024;
@@ -218,6 +214,7 @@ void PioSet(PFILE*file, const char *string, ... )
 
 void Pget(PFILE*file, const char *string, void *ptr)
 {
+   char *PioNames[] = PIONAMES ; 
    if (strcmp(string, "sizegroup") == 0) *(int *)ptr = file->sizegroup;
    if (strcmp(string, "ngroup") == 0) *(int *)ptr = file->ngroup;
    if (strcmp(string, "recordLength") == 0) *(int *)ptr = file->recordLength;
@@ -480,11 +477,10 @@ void Popen_forRead(PFILE* pfile)
    char* header=NULL;
    int strippedHeaderLength, rawHeaderLength;
    pio_long64 datasize0,startOfFile0; 
-   OBJECTFILE ofile; 
    if (pfile->id == 0)
    {
       pfile->file= fopen(pfile->masterName, "r");
-      int rc = fseeko(pfile->file,pfile->start,SEEK_CUR);
+      fseeko(pfile->file,pfile->start,SEEK_CUR);
       if (pfile->file == NULL)
       {
          printf("Popen for read failed for file name: %s\n" "Can't open master file:  %s\n" , pfile->name, pfile->masterName);
@@ -520,6 +516,7 @@ void Popen_forRead(PFILE* pfile)
    else if (strcmp(string, "FIXRECORDBINARY") == 0) pfile->datatype = FIXRECORDBINARY;
    else if (strcmp(string, "VARRECORDASCII") == 0)  pfile->datatype = VARRECORDASCII;
    else if (strcmp(string, "VARRECORDBINARY") == 0) pfile->datatype = VARRECORDBINARY;
+   else if (strcmp(string, "LAMMPS") == 0) pfile->datatype = LAMMPS;
 
    if ( (pfile->nfiles == 0 ) && pfile->id == 0)
    {
@@ -697,12 +694,9 @@ void Popen_forRead(PFILE* pfile)
 
 static pio_long64 statPfile(PFILE *pfile,pio_long64* datasize,pio_long64 *startOfFile)
 {
-   char *offset;
-   char *filename = pfile->name;
    pio_long64 size=0;
    struct stat statbuf;
    int rc;
-   pio_long64 nblocks=0;
    switch (pfile->type)
    {
       case PIO:
@@ -719,7 +713,7 @@ static pio_long64 statPfile(PFILE *pfile,pio_long64* datasize,pio_long64 *startO
          {
             char block[BLOCKSIZE]; 
             TARHEADER *tarHeader = (TARHEADER *)&block[0];
-            int nn = fread(block,BLOCKSIZE,1,pfile->file);
+            fread(block,BLOCKSIZE,1,pfile->file);
             size =0; 
             size = strtoll(tarHeader->size,NULL,8);
             int nBlocks = size/BLOCKSIZE ;

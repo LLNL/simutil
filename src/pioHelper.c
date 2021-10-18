@@ -23,6 +23,8 @@ PIO_HELPER* pioHelperFactory(OBJECT* header)
       helper = pvrah_create(header);
    else if (strcmp(dataType, "VARRECORDBINARY") == 0)
       helper = pvrbh_create(header);
+   else if (strcmp(dataType, "LAMMPS") == 0)
+      helper = pvrah_create(header);
 
    // catch attempt to read unknown datatype.
    assert(helper != NULL);

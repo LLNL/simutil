@@ -47,11 +47,9 @@ extern "C" {
 #endif
 
 
-/* if you change PIO_ENUMS please update the definition of PioNames in
- * pio.c to keep it in sync. */
-enum PIO_ENUMS { PIO_NONE, SPLIT, FIXRECORDASCII, FIXRECORDBINARY,
-					  VARRECORDASCII, VARRECORDBINARY, CRC32};
-extern char* PioNames[];
+/* ******WARNING*****   if you change PIO_ENUMS please update the definition of the macro PIONAMES  below*/
+enum PIO_ENUMS { PIO_NONE,    SPLIT,   FIXRECORDASCII,   FIXRECORDBINARY,   VARRECORDASCII,   VARRECORDBINARY,   LAMMPS,   CRC32};
+#define PIONAMES   {"NONE" , "SPLIT", "FIXRECORDASCII", "FIXRECORDBINARY", "VARRECORDASCII", "VARRECORDBINARY", "LAMMPS", "CRC32"};
 
 typedef unsigned long long pio_long64;
 typedef struct  rec_type { long long unsigned gid; unsigned pid; float x,y,z; } REC_TYPE; 
